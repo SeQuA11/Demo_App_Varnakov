@@ -1,0 +1,225 @@
+/* Тёмная тема в стиле интерфейса Warframe: золотые контуры, голубые акценты, срезанные углы панелей и кнопок */
+
+.root {
+    -gold: #c9a45c;
+    -gold-soft: rgba(201, 164, 92, 0.35);
+    -cyan: #6fd6e8;
+    -cyan-soft: rgba(111, 214, 232, 0.35);
+    -text: #d9e2ea;
+    -muted: #7f8d99;
+    -red: #e0705f;
+    -violet: #a99bf0;
+    -fx-base: #121a22;
+    -fx-background: #0b1117;
+    -fx-control-inner-background: #0e161d;
+    -fx-control-inner-background-alt: #111a22;
+    -fx-accent: #8a7140;
+    -fx-focus-color: #6fd6e8;
+    -fx-faint-focus-color: rgba(111, 214, 232, 0.15);
+    -fx-font-family: "Bahnschrift", "Segoe UI";
+    -fx-font-size: 13px;
+}
+
+.backdrop {
+    -fx-background-color:
+        radial-gradient(center 85% 8%, radius 55%, rgba(111, 214, 232, 0.13), transparent),
+        radial-gradient(center 8% 95%, radius 50%, rgba(201, 164, 92, 0.11), transparent),
+        linear-gradient(to bottom right, #05080c, #0d161f 55%, #080d12);
+}
+
+/* ---------- текст ---------- */
+.label { -fx-text-fill: -text; }
+.title { -fx-font-size: 34px; -fx-font-weight: bold; -fx-text-fill: -gold; }
+.title-small { -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: -gold; }
+.caption { -fx-font-size: 11px; -fx-text-fill: -cyan; }
+.muted { -fx-text-fill: -muted; }
+.error { -fx-text-fill: -red; }
+.user-name { -fx-font-size: 14px; -fx-text-fill: -text; }
+
+.line {
+    -fx-min-height: 1; -fx-pref-height: 1; -fx-max-height: 1;
+    -fx-background-color: linear-gradient(to right, -gold, transparent);
+}
+
+/* ---------- панели и каркас окна ---------- */
+.panel {
+    -fx-background-color: rgba(13, 20, 27, 0.9);
+    -fx-border-color: -gold-soft;
+    -fx-background-radius: 0 20 0 20;
+    -fx-border-radius: 0 20 0 20;
+    -fx-padding: 30 34 26 34;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.65), 28, 0, 0, 10);
+}
+
+.header {
+    -fx-padding: 14 26;
+    -fx-background-color: rgba(6, 10, 14, 0.85);
+    -fx-border-color: transparent transparent -gold-soft transparent;
+}
+
+.nav {
+    -fx-pref-width: 230;
+    -fx-padding: 18 0 18 0;
+    -fx-spacing: 2;
+    -fx-background-color: rgba(6, 10, 14, 0.6);
+    -fx-border-color: transparent -gold-soft transparent transparent;
+}
+.nav-caption { -fx-font-size: 10px; -fx-text-fill: -muted; -fx-padding: 0 0 8 24; }
+
+.content { -fx-padding: 22 28 22 28; }
+
+/* ---------- кнопки ---------- */
+.button {
+    -fx-background-color: rgba(201, 164, 92, 0.08);
+    -fx-background-insets: 0;
+    -fx-border-color: -gold;
+    -fx-text-fill: #ecd9a9;
+    -fx-background-radius: 0 10 0 10;
+    -fx-border-radius: 0 10 0 10;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+}
+.button:hover {
+    -fx-background-color: rgba(201, 164, 92, 0.22);
+    -fx-effect: dropshadow(gaussian, rgba(201, 164, 92, 0.55), 14, 0.1, 0, 0);
+}
+.button:pressed { -fx-background-color: rgba(201, 164, 92, 0.36); }
+.button:focused { -fx-border-color: -cyan; }
+.button.primary {
+    -fx-background-color: linear-gradient(to bottom, #dcbb72, #a8843f);
+    -fx-text-fill: #0b0f14;
+    -fx-font-weight: bold;
+}
+.button.primary:hover { -fx-background-color: linear-gradient(to bottom, #e9cb82, #b8934c); }
+
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 0 3;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-text-fill: -muted;
+    -fx-alignment: center-left;
+    -fx-padding: 11 24;
+    -fx-max-width: infinity;
+}
+.nav-button:hover { -fx-text-fill: -text; -fx-background-color: rgba(111, 214, 232, 0.06); -fx-effect: null; }
+.nav-button:focused { -fx-border-color: transparent; }
+.nav-button.active {
+    -fx-text-fill: -cyan;
+    -fx-border-color: -cyan;
+    -fx-background-color: linear-gradient(to right, rgba(111, 214, 232, 0.18), transparent);
+}
+
+/* ---------- поля ввода ---------- */
+.text-field, .password-field, .combo-box, .date-picker > .text-field {
+    -fx-background-color: #0a1016;
+    -fx-background-insets: 0;
+    -fx-border-color: -cyan-soft;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-text-fill: -text;
+    -fx-prompt-text-fill: -muted;
+    -fx-highlight-fill: -gold-soft;
+    -fx-highlight-text-fill: -text;
+}
+.text-field, .password-field, .date-picker > .text-field { -fx-padding: 8 10; }
+.text-field:focused, .password-field:focused, .combo-box:focused, .date-picker:focused > .text-field {
+    -fx-border-color: -cyan;
+    -fx-effect: dropshadow(gaussian, rgba(111, 214, 232, 0.35), 10, 0, 0, 0);
+}
+.combo-box { -fx-padding: 1; }
+.combo-box .list-cell { -fx-text-fill: -text; -fx-background-color: transparent; -fx-padding: 6 8; }
+.combo-box > .arrow-button, .date-picker > .arrow-button { -fx-background-color: transparent; -fx-padding: 0 10 0 6; }
+.combo-box > .arrow-button > .arrow, .date-picker > .arrow-button > .arrow { -fx-background-color: -gold; }
+.date-picker { -fx-background-color: #0a1016; -fx-border-color: -cyan-soft; }
+.date-picker > .text-field { -fx-border-color: transparent; }
+
+.combo-box-popup > .list-view {
+    -fx-background-color: #0d141b;
+    -fx-border-color: -gold-soft;
+}
+.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell {
+    -fx-background-color: #0d141b;
+    -fx-text-fill: -text;
+    -fx-padding: 7 10;
+}
+.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover,
+.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected {
+    -fx-background-color: rgba(201, 164, 92, 0.28);
+}
+.date-picker-popup { -fx-background-color: #0d141b; -fx-border-color: -gold-soft; }
+
+/* ---------- таблицы ---------- */
+.table-view {
+    -fx-background-color: rgba(10, 16, 22, 0.88);
+    -fx-background-insets: 0;
+    -fx-border-color: -gold-soft;
+    -fx-padding: 0;
+    -fx-table-cell-border-color: rgba(255, 255, 255, 0.04);
+}
+.table-view:focused { -fx-background-insets: 0; -fx-border-color: -gold-soft; }
+.table-view .column-header-background { -fx-background-color: #0a1117; }
+.table-view .column-header, .table-view .filler {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent -gold-soft transparent;
+    -fx-padding: 7 4;
+}
+.table-view .column-header .label { -fx-text-fill: -gold; -fx-font-size: 12px; -fx-alignment: center-left; }
+.table-view .corner { -fx-background-color: #0a1117; }
+.table-view .placeholder .label { -fx-text-fill: -muted; }
+
+.table-row-cell { -fx-background-color: #0e161d; -fx-cell-size: 32; -fx-border-color: transparent; }
+.table-row-cell:odd { -fx-background-color: #0b1218; }
+.table-row-cell:filled:hover { -fx-background-color: rgba(111, 214, 232, 0.08); }
+.table-row-cell:filled:selected {
+    -fx-background-color: linear-gradient(to right, rgba(201, 164, 92, 0.40), rgba(201, 164, 92, 0.12));
+}
+.table-row-cell .table-cell { -fx-text-fill: -text; -fx-padding: 0 8; -fx-border-color: transparent; }
+
+.table-row-cell .table-cell.st-clean { -fx-text-fill: -cyan; }
+.table-row-cell .table-cell.st-busy { -fx-text-fill: -gold; }
+.table-row-cell .table-cell.st-dirty { -fx-text-fill: -red; }
+.table-row-cell .table-cell.st-cleaning { -fx-text-fill: -violet; }
+.table-row-cell .table-cell.st-muted { -fx-text-fill: -muted; }
+
+.scroll-bar { -fx-background-color: transparent; }
+.scroll-bar .thumb { -fx-background-color: rgba(201, 164, 92, 0.35); -fx-background-radius: 0; }
+.scroll-bar .increment-button, .scroll-bar .decrement-button { -fx-background-color: transparent; }
+
+/* ---------- плашки со счётчиками ---------- */
+.stat {
+    -fx-min-width: 150;
+    -fx-padding: 9 16;
+    -fx-background-color: rgba(13, 20, 27, 0.88);
+    -fx-border-color: -gold-soft;
+    -fx-border-width: 0 0 0 3;
+}
+.stat-value { -fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: -text; }
+.stat-title { -fx-font-size: 10px; -fx-text-fill: -muted; }
+.stat.st-total { -fx-border-color: -text; }
+.stat.st-clean { -fx-border-color: -cyan; }
+.stat.st-clean .stat-value { -fx-text-fill: -cyan; }
+.stat.st-busy { -fx-border-color: -gold; }
+.stat.st-busy .stat-value { -fx-text-fill: -gold; }
+.stat.st-dirty { -fx-border-color: -red; }
+.stat.st-dirty .stat-value { -fx-text-fill: -red; }
+.stat.st-cleaning { -fx-border-color: -violet; }
+.stat.st-cleaning .stat-value { -fx-text-fill: -violet; }
+
+/* ---------- диалоги и сообщения ---------- */
+.dialog-pane {
+    -fx-background-color: #0d141b;
+    -fx-border-color: -gold;
+    -fx-padding: 4;
+}
+.dialog-pane > .content { -fx-padding: 20 24 6 24; }
+.dialog-pane > .content.label { -fx-text-fill: -text; -fx-font-size: 14px; -fx-padding: 24 26 10 26; }
+.dialog-pane > .button-bar > .container { -fx-background-color: transparent; -fx-padding: 12 24 20 24; }
+.dialog-pane .label { -fx-text-fill: -text; }
+.dialog-pane .caption { -fx-text-fill: -cyan; }
+.dialog-pane .muted { -fx-text-fill: -muted; }
+.dialog-pane .error { -fx-text-fill: -red; }
+.dialog-pane .title-small { -fx-text-fill: -gold; }
+.dialog-pane .title-error { -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: -red; }
+.dialog-pane .message { -fx-font-size: 14px; }
