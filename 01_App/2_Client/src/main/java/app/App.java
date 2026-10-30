@@ -5,28 +5,26 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.util.List;
-import java.util.function.Supplier;
-
 /**
- * Окно входа и главное окно с меню разделов.
- * Раздел «Пользователи» виден только роли «Администратор».
+ * Окно входа и главное окно с вкладками разделов.
+ * Вкладка «Пользователи» видна только роли «Администратор».
  */
 public class App extends Application {
 
@@ -44,31 +42,19 @@ public class App extends Application {
     @Override
     public void start(Stage s) {
         stage = s;
-        stage.setTitle("Гостиница — система управления");
-        stage.setMinWidth(1000);
-        stage.setMinHeight(640);
+        stage.setTitle("Гостиница");
         stage.setScene(loginScene());
         stage.show();
     }
 
-    static Scene scene(Parent root) {
-        Scene sc = new Scene(root, 1180, 720);
-        sc.getStylesheets().add(Ui.CSS);
-        return sc;
-    }
-
     static Scene loginScene() {
         TextField login = new TextField();
-        login.setPromptText("Введите логин");
         PasswordField password = new PasswordField();
-        password.setPromptText("Введите пароль");
-        Label error = Ui.label("", "error");
-        error.setWrapText(true);
+        Label error = new Label();
+        error.setStyle("-fx-text-fill: red;");
 
-        Button enter = new Button("ВОЙТИ");
-        enter.getStyleClass().add("primary");
+        Button enter = new Button("Войти");
         enter.setDefaultButton(true);
-        enter.setMaxWidth(Double.MAX_VALUE);
         enter.setOnAction(e -> {
             error.setText("");
             if (login.getText().isBlank() || password.getText().isBlank()) {
@@ -90,22 +76,12 @@ public class App extends Application {
             }
         });
 
-        VBox panel = new VBox(14,
-                Ui.label("ВХОД В СИСТЕМУ", "caption"),
-                Ui.label("ГОСТИНИЦА", "title"),
-                Ui.line(),
-                Ui.field("Логин", login),
-                Ui.field("Пароль", password),
-                enter, error);
-        panel.getStyleClass().add("panel");
-        panel.setMaxSize(400, Region.USE_PREF_SIZE);
-
-        Label footer = Ui.label("Система управления гостиницей · доступ только для сотрудников", "muted");
-        StackPane.setAlignment(footer, Pos.BOTTOM_CENTER);
-        StackPane.setMargin(footer, new Insets(0, 0, 18, 0));
-        StackPane root = new StackPane(panel, footer);
-        root.getStyleClass().add("backdrop");
-        return scene(root);
+        GridPane form = Ui.form("Логин", login, "Пароль", password);
+        form.setAlignment(Pos.CENTER);
+        VBox root = new VBox(10, new Label("Вход в систему"), form, enter, error);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(20));
+        return new Scene(root, 420, 260);
     }
 
     /** first = true: первый вход по выданному паролю, без смены пароля работать нельзя. */
@@ -114,9 +90,7 @@ public class App extends Application {
         PasswordField pas1 = new PasswordField();
         PasswordField pas2 = new PasswordField();
         Node form = Ui.form("Текущий пароль", old, "Новый пароль", pas1, "Повторите пароль", pas2);
-        Node content = first
-                ? new VBox(10, Ui.label("Это первый вход в систему. Задайте свой пароль.", "muted"), form)
-                : form;
+        Node content = first ? new VBox(10, new Label("Это первый вход в систему. Задайте свой пароль."), form) : form;
         return Ui.dialog("Смена пароля", content, "Сохранить", () -> {
             if (old.getText().isEmpty() || pas1.getText().isEmpty() || pas2.getText().isEmpty()) {
                 throw new Exception("Заполните все поля");
@@ -129,55 +103,41 @@ public class App extends Application {
     }
 
     static Scene mainScene() {
-        boolean admin = ADMIN.equals(Ui.text(user, "role"));
-        StackPane content = new StackPane();
-        content.getStyleClass().add("content");
-
-        VBox nav = new VBox();
-        nav.getStyleClass().add("nav");
-        Button rooms = navButton("НОМЕРНОЙ ФОНД", nav, content, () -> new RoomsView().root);
-        Button stays = navButton("БРОНИРОВАНИЯ", nav, content, () -> new StaysView().root);
-        nav.getChildren().addAll(Ui.label("РАЗДЕЛЫ", "nav-caption"), rooms, stays);
-        if (admin) {
-            nav.getChildren().add(navButton("ПОЛЬЗОВАТЕЛИ", nav, content, () -> new UsersView().root));
+        RoomsView rooms = new RoomsView();
+        StaysView stays = new StaysView();
+        TabPane tabs = new TabPane(tab("Номерной фонд", rooms.root, rooms::load), tab("Бронирования", stays.root, stays::load));
+        if (ADMIN.equals(Ui.text(user, "role"))) {
+            UsersView users = new UsersView();
+            tabs.getTabs().add(tab("Пользователи", users.root, users::load));
         }
-        Region spacer = new Region();
-        VBox.setVgrow(spacer, Priority.ALWAYS);
-        Button password = new Button("СМЕНИТЬ ПАРОЛЬ");
-        password.getStyleClass().add("nav-button");
+        tabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+
+        Button password = new Button("Сменить пароль");
         password.setOnAction(e -> {
             if (Ui.done(passwordDialog(false))) {
                 Ui.info("Пароль изменён");
             }
         });
-        Button exit = new Button("ВЫХОД");
-        exit.getStyleClass().add("nav-button");
+        Button exit = new Button("Выход");
         exit.setOnAction(e -> logout());
-        nav.getChildren().addAll(spacer, password, exit);
-
         Region grow = new Region();
         HBox.setHgrow(grow, Priority.ALWAYS);
-        VBox who = new VBox(2, Ui.label(Ui.text(user, "fio"), "user-name"), Ui.label(Ui.text(user, "role").toUpperCase(), "caption"));
-        who.setAlignment(Pos.CENTER_RIGHT);
-        HBox header = new HBox(14, Ui.label("ГОСТИНИЦА", "title-small"), Ui.label("СИСТЕМА УПРАВЛЕНИЯ", "caption"), grow, who);
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.getStyleClass().add("header");
+        HBox top = new HBox(10, new Label(Ui.text(user, "fio") + " (" + Ui.text(user, "role") + ")"), grow, password, exit);
+        top.setAlignment(Pos.CENTER_LEFT);
+        top.setPadding(new Insets(8));
 
-        BorderPane root = new BorderPane(content, header, null, null, nav);
-        root.getStyleClass().add("backdrop");
-        rooms.fire();
-        return scene(root);
+        return new Scene(new BorderPane(tabs, top, null, null, null), 1000, 620);
     }
 
-    static Button navButton(String text, VBox nav, StackPane content, Supplier<Node> view) {
-        Button b = new Button(text);
-        b.getStyleClass().add("nav-button");
-        b.setOnAction(e -> {
-            List.copyOf(nav.getChildren()).forEach(n -> n.getStyleClass().remove("active"));
-            b.getStyleClass().add("active");
-            content.getChildren().setAll(view.get());
+    /** Вкладка, которая заново загружает данные с сервера каждый раз, когда её открывают. */
+    static Tab tab(String title, Node content, Runnable load) {
+        Tab t = new Tab(title, content);
+        t.setOnSelectionChanged(e -> {
+            if (t.isSelected()) {
+                load.run();
+            }
         });
-        return b;
+        return t;
     }
 
     static void logout() {

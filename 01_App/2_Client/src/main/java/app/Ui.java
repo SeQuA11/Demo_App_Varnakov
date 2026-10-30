@@ -10,14 +10,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.text.DecimalFormat;
@@ -27,18 +23,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
-/** Общие элементы интерфейса: заголовки, таблицы по JSON, диалоги и сообщения. */
+/** Общие элементы интерфейса: таблицы по JSON, формы, диалоги и сообщения. */
 public class Ui {
-
-    static final String CSS = Ui.class.getResource("/style.css").toExternalForm();
-
-    /** Цвет значения в таблице и на плашках: статус номера, состояние брони, учётной записи. */
-    static final Map<String, String> COLORS = Map.of(
-            "Чистый", "st-clean", "Занят", "st-busy", "Грязный", "st-dirty", "Назначен к уборке", "st-cleaning",
-            "Бронь", "st-clean", "Проживает", "st-busy", "Выехал", "st-muted",
-            "Активен", "st-clean", "Заблокирован", "st-dirty");
 
     static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     static final DecimalFormat MONEY = new DecimalFormat("#,##0.00 ₽", DecimalFormatSymbols.getInstance(new Locale("ru")));
@@ -50,51 +37,18 @@ public class Ui {
         void run() throws Exception;
     }
 
-    static Label label(String text, String style) {
-        Label l = new Label(text);
-        l.getStyleClass().add(style);
-        return l;
-    }
-
-    /** Заголовок раздела с подписью и золотой линией. */
-    static VBox heading(String title, String subtitle) {
-        return new VBox(4, label(title, "title-small"), label(subtitle, "muted"), line());
-    }
-
-    static Region line() {
-        Region r = new Region();
-        r.getStyleClass().add("line");
-        return r;
-    }
-
-    static VBox field(String caption, Node input) {
-        return new VBox(4, label(caption.toUpperCase(), "caption"), input);
-    }
-
     /** form("Фамилия", поле, "Имя", поле, ...) — подписи слева, поля справа. */
     static GridPane form(Object... pairs) {
         GridPane g = new GridPane();
-        g.setHgap(14);
-        g.setVgap(10);
+        g.setHgap(10);
+        g.setVgap(8);
         for (int i = 0; i < pairs.length; i += 2) {
-            Node input = (Node) pairs[i + 1];
-            GridPane.setHgrow(input, Priority.ALWAYS);
-            if (input instanceof Region r) {
-                r.setMaxWidth(Double.MAX_VALUE);
-                r.setPrefWidth(280);
-            }
-            g.addRow(i / 2, label((String) pairs[i], "caption"), input);
+            g.addRow(i / 2, new Label((String) pairs[i]), (Node) pairs[i + 1]);
         }
         return g;
     }
 
-    static VBox stat(String title, long value, String style) {
-        VBox v = new VBox(2, label(String.valueOf(value), "stat-value"), label(title, "stat-title"));
-        v.getStyleClass().addAll("stat", style);
-        return v;
-    }
-
-    /** Колонки делят ширину таблицы пропорционально заданным ширинам, без горизонтальной прокрутки. */
+    /** Колонки делят ширину таблицы пропорционально заданным ширинам. */
     static TableView<JsonObject> table(List<TableColumn<JsonObject, String>> columns, String empty) {
         TableView<JsonObject> t = new TableView<>();
         t.getColumns().addAll(columns);
@@ -113,23 +67,6 @@ public class Ui {
     static TableColumn<JsonObject, String> dateCol(String title, String key, double width) {
         TableColumn<JsonObject, String> c = col(title, key, width);
         c.setCellValueFactory(d -> new SimpleStringProperty(date(text(d.getValue(), key))));
-        return c;
-    }
-
-    /** Колонка, где цвет текста зависит от значения (см. COLORS). */
-    static TableColumn<JsonObject, String> colorCol(String title, String key, double width) {
-        TableColumn<JsonObject, String> c = col(title, key, width);
-        c.setCellFactory(x -> new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                getStyleClass().removeAll(COLORS.values());
-                setText(empty ? null : item);
-                if (!empty && COLORS.containsKey(item)) {
-                    getStyleClass().add(COLORS.get(item));
-                }
-            }
-        });
         return c;
     }
 
@@ -156,19 +93,18 @@ public class Ui {
     static Dialog<ButtonType> dialog(String title, Node content, String okText, Action onOk) {
         Dialog<ButtonType> d = new Dialog<>();
         d.setTitle(title);
+        d.setHeaderText(title);
         if (App.stage != null && App.stage.isShowing()) {
             d.initOwner(App.stage);
         }
-        Label error = label("", "error");
+        Label error = new Label();
+        error.setStyle("-fx-text-fill: red;");
         error.setWrapText(true);
-        error.setMaxWidth(420);
-        DialogPane p = d.getDialogPane();
-        p.getStylesheets().add(CSS);
-        p.setContent(new VBox(12, label(title.toUpperCase(), "title-small"), line(), content, error));
+        error.setMaxWidth(400);
+        d.getDialogPane().setContent(new VBox(10, content, error));
         ButtonType ok = new ButtonType(okText, ButtonBar.ButtonData.OK_DONE);
-        p.getButtonTypes().addAll(ok, new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE));
-        Button okButton = (Button) p.lookupButton(ok);
-        okButton.getStyleClass().add("primary");
+        d.getDialogPane().getButtonTypes().addAll(ok, new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE));
+        Button okButton = (Button) d.getDialogPane().lookupButton(ok);
         okButton.addEventFilter(ActionEvent.ACTION, e -> {
             try {
                 onOk.run();
@@ -184,19 +120,10 @@ public class Ui {
         return d.showAndWait().filter(b -> b.getButtonData() == ButtonBar.ButtonData.OK_DONE).isPresent();
     }
 
-    /** Сообщение в том же оформлении, что и диалоги: заголовок, линия, текст. */
     static Alert alert(Alert.AlertType type, String title, String text) {
-        Alert a = new Alert(type);
+        Alert a = new Alert(type, text);
         a.setTitle(title);
         a.setHeaderText(null);
-        a.setGraphic(null);
-        Label message = label(text, "message");
-        message.setWrapText(true);
-        message.setMaxWidth(460);
-        a.getDialogPane().setContent(new VBox(12,
-                label(title.toUpperCase(), type == Alert.AlertType.ERROR ? "title-error" : "title-small"), line(), message));
-        a.getDialogPane().getStylesheets().add(CSS);
-        a.getDialogPane().setMinWidth(440);
         if (App.stage != null && App.stage.isShowing()) {
             a.initOwner(App.stage);
         }

@@ -3,9 +3,11 @@ package app;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import javafx.collections.FXCollections;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -14,7 +16,7 @@ import javafx.scene.layout.VBox;
 import java.util.List;
 import java.util.Objects;
 
-/** Раздел «Номерной фонд»: номера с текущим статусом, фильтры, смена статуса при уборке. */
+/** Вкладка «Номерной фонд»: номера с текущим статусом, фильтры, смена статуса при уборке. */
 public class RoomsView {
 
     static final String ALL = "Все";
@@ -24,7 +26,7 @@ public class RoomsView {
     final ComboBox<String> floor = new ComboBox<>();
     final ComboBox<String> status = new ComboBox<>();
     final ComboBox<String> newStatus = new ComboBox<>();
-    final HBox stats = new HBox(12);
+    final Label counts = new Label();
     List<JsonObject> rooms = List.of();
 
     RoomsView() {
@@ -33,23 +35,22 @@ public class RoomsView {
                 Ui.col("Этаж", "floor", 60),
                 Ui.col("Категория", "category", 360),
                 Ui.col("Класс", "comfortClass", 110),
-                Ui.colorCol("Статус", "status", 160),
+                Ui.col("Статус", "status", 160),
                 Ui.dateCol("Дата статуса", "statusDate", 120)), "Нет номеров");
         floor.setOnAction(e -> filter());
         status.setOnAction(e -> filter());
-        newStatus.setPromptText("Выберите статус");
 
-        Button refresh = new Button("ОБНОВИТЬ");
+        Button refresh = new Button("Обновить");
         refresh.setOnAction(e -> load());
-        Button change = new Button("ИЗМЕНИТЬ СТАТУС");
-        change.getStyleClass().add("primary");
+        Button change = new Button("Изменить статус");
         change.setOnAction(e -> change());
 
-        HBox filters = new HBox(10, Ui.label("ЭТАЖ", "caption"), floor, Ui.label("СТАТУС", "caption"), status, refresh);
+        HBox filters = new HBox(10, new Label("Этаж"), floor, new Label("Статус"), status, refresh);
         filters.setAlignment(Pos.CENTER_LEFT);
-        HBox actions = new HBox(10, Ui.label("НОВЫЙ СТАТУС ВЫБРАННОГО НОМЕРА", "caption"), newStatus, change);
+        HBox actions = new HBox(10, new Label("Новый статус выбранного номера"), newStatus, change);
         actions.setAlignment(Pos.CENTER_LEFT);
-        root = new VBox(14, Ui.heading("НОМЕРНОЙ ФОНД", "Текущее состояние номеров гостиницы"), stats, filters, table, actions);
+        root = new VBox(10, counts, filters, table, actions);
+        root.setPadding(new Insets(10));
         VBox.setVgrow(table, Priority.ALWAYS);
         load();
     }
@@ -63,11 +64,12 @@ public class RoomsView {
             fill(status, statuses);
             newStatus.getItems().setAll(statuses.stream().filter(s -> !s.equals("Занят")).toList());
 
-            stats.getChildren().setAll(Ui.stat("ВСЕГО НОМЕРОВ", rooms.size(), "st-total"));
+            StringBuilder sb = new StringBuilder("Всего номеров: " + rooms.size());
             for (String s : statuses) {
-                long n = rooms.stream().filter(r -> s.equals(Ui.text(r, "status"))).count();
-                stats.getChildren().add(Ui.stat(s.toUpperCase(), n, Ui.COLORS.getOrDefault(s, "st-total")));
+                sb.append("    ").append(s).append(": ")
+                        .append(rooms.stream().filter(r -> s.equals(Ui.text(r, "status"))).count());
             }
+            counts.setText(sb.toString());
             filter();
         } catch (Exception e) {
             Ui.error(e.getMessage());
